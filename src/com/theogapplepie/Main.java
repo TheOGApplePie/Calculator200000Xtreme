@@ -26,8 +26,9 @@ String [] arrayOfOperations = {"+","-","x","/"};
     private void initUI(Stage stage) {
 
         GridPane pane = new GridPane();
-        Scene scene = new Scene(pane, 400,400);
+        Scene scene = new Scene(pane, 300,300);
         textArea = new TextArea("0");
+        textArea.setPrefSize(250,25);
         textArea.setEditable(false);
         b0 = new Button ("0");
         b0.setOnAction(this);
@@ -64,9 +65,8 @@ String [] arrayOfOperations = {"+","-","x","/"};
         bClear = new Button("C");
         bClear.setOnAction(this);
         // set up the gap and padding between the grid cells
-        pane.setHgap(10);
-        pane.setVgap(10);
-        pane.setPadding(new Insets(10));
+        pane.setHgap(5);
+        pane.setVgap(5);
 
         pane.add(b0, 1, 5, 2,1);
         pane.add(bDot,3,5);
@@ -90,7 +90,7 @@ String [] arrayOfOperations = {"+","-","x","/"};
         pane.add(bClear, 3,1);
         pane.add(bDivide,4,1);
 
-        pane.add(textArea, 0,0);
+        pane.add(textArea, 1,0);
         stage.setTitle("Calculator 200,000xtreme");
         stage.setScene(scene);
         stage.show();
@@ -105,6 +105,9 @@ String [] arrayOfOperations = {"+","-","x","/"};
             textArea.setText("");
             break;
         case ".":
+            if (textArea.getText().isEmpty()){
+                textArea.appendText("0");
+            }
             if (!textArea.getText().endsWith(".")){
                 textArea.appendText(button.getText());
             }
@@ -124,55 +127,18 @@ String [] arrayOfOperations = {"+","-","x","/"};
     }
     }
     public void calculate(String calculation){
-        while (containsOperations(calculation)&& calculation.length()>2){
-            System.out.println(calculation);
+        while (containsOperations(calculation)){
             while(calculation.contains("x")){
-                int locationOfx = calculation.indexOf("x");
-                int previousOp = findSurroundingOp(calculation.substring(0,locationOfx),0);
-                if(previousOp == -1){
-                    previousOp = 0;
-                }
-                int nextOp = findSurroundingOp(calculation.substring(locationOfx+1),1);
-                if(nextOp == -1){
-                    nextOp = calculation.length()-1;
-                }
-                calculation = calculation.substring(0, previousOp)+ calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+            calculation = calculateHelp("x", calculation);
             }
             while(calculation.contains("/")){
-                int locationOfDivide = calculation.indexOf("/");
-                int previousOp = findSurroundingOp(calculation.substring(0,locationOfDivide),0);
-                if(previousOp == -1){
-                    previousOp = 0;
-                }
-                int nextOp = findSurroundingOp(calculation.substring(locationOfDivide+1),1);
-                if(nextOp == -1){
-                    nextOp = calculation.length()-1;
-                }
-                calculation = calculation.substring(0, previousOp) + calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+                calculation = calculateHelp("/", calculation);
             }
             while (calculation.contains("+")){
-                int locationOfPlus = calculation.indexOf("+");
-                int previousOp = findSurroundingOp(calculation.substring(0,locationOfPlus),0);
-                if(previousOp == -1){
-                    previousOp = 0;
-                }
-                int nextOp = findSurroundingOp(calculation.substring(locationOfPlus+1),1);
-                if(nextOp == -1){
-                    nextOp = calculation.length()-1;
-                }
-                calculation = calculation.substring(0, previousOp) + calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+                calculation = calculateHelp("+", calculation);
             }
             while(calculation.contains("-")){
-                int locationOfMinus = calculation.indexOf("-");
-                int previousOp = findSurroundingOp(calculation.substring(0,locationOfMinus),0);
-                if(previousOp == -1){
-                    previousOp = 0;
-                }
-                int nextOp = findSurroundingOp(calculation.substring(locationOfMinus+1),1);
-                if(nextOp == -1){
-                    nextOp = calculation.length()-1;
-                }
-                calculation = calculation.substring(0, previousOp) + calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+                calculation = calculateHelp("-", calculation);
             }
         }
     textArea.setText(calculation);
@@ -196,14 +162,13 @@ String [] arrayOfOperations = {"+","-","x","/"};
         return -1;
     }
 
-    public double calculateHelp(String partition){
+    public double calculateHelp2(String partition){
         double a;
         double b;
-        System.out.println(partition);
         if (partition.contains("+")){
             a = Double.parseDouble(partition.split("\\+")[0]);
             b = Double.parseDouble(partition.split("\\+")[1]);
-            return a +b;
+            return a+b;
         }else if(partition.contains("-")){
             a = Double.parseDouble(partition.split("-")[0]);
             b = Double.parseDouble(partition.split("-")[1]);
@@ -212,10 +177,21 @@ String [] arrayOfOperations = {"+","-","x","/"};
             a = Double.parseDouble(partition.split("x")[0]);
             b = Double.parseDouble(partition.split("x")[1]);
             return a*b;
-        }else{
+        }else {
             a = Double.parseDouble(partition.split("/")[0]);
             b = Double.parseDouble(partition.split("/")[1]);
-            return a/b;}
+            return a/b;
+        }
+    }
+    private String calculateHelp(String operation, String calculation){
+        int locationOfOperation = calculation.indexOf(operation);
+        int previousOp = findSurroundingOp(calculation.substring(0,locationOfOperation),0)+1;
+        int nextOp = findSurroundingOp(calculation.substring(locationOfOperation+1),1)+1+locationOfOperation;
+        if((nextOp - 1-locationOfOperation) == -1){
+            nextOp = calculation.length();
+        }
+        calculation = calculation.substring(0, previousOp)+ calculateHelp2(calculation.substring(previousOp, nextOp)) + calculation.substring(nextOp);
+        return calculation;
     }
     private boolean containsOperations(String calculations){
         for (String a : arrayOfOperations){
