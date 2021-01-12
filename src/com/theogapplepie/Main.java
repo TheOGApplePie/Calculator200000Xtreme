@@ -127,7 +127,14 @@ String [] arrayOfOperations = {"+","-","x","/"};
     }
     }
     public void calculate(String calculation){
-        while (containsOperations(calculation)){
+        boolean negativeCalculated = false;
+        while (containsOperations(calculation)&& !calculation.startsWith("+")&& !calculation.startsWith("x")&& !calculation.startsWith("/") && !negativeCalculated){
+            if(calculation.startsWith("-")){
+                calculation = "0" + calculation;
+            }
+            if(!calculation.contains("-")){
+                negativeCalculated = true;
+            }
             while(calculation.contains("x")){
             calculation = calculateHelp("x", calculation);
             }
@@ -137,8 +144,11 @@ String [] arrayOfOperations = {"+","-","x","/"};
             while (calculation.contains("+")){
                 calculation = calculateHelp("+", calculation);
             }
-            while(calculation.contains("-")){
+            while(calculation.contains("-") && !calculation.startsWith("-")){
                 calculation = calculateHelp("-", calculation);
+                if(calculation.startsWith("-")){
+                    negativeCalculated = true;
+                }
             }
         }
     textArea.setText(calculation);
@@ -161,8 +171,17 @@ String [] arrayOfOperations = {"+","-","x","/"};
         }
         return -1;
     }
-
-    public double calculateHelp2(String partition){
+    private String calculateHelp(String operation, String calculation){
+        int locationOfOperation = calculation.indexOf(operation);
+        int previousOp = findSurroundingOp(calculation.substring(0,locationOfOperation),0)+1;
+        int nextOp = findSurroundingOp(calculation.substring(locationOfOperation+1),1)+1+locationOfOperation;
+        if((nextOp - 1-locationOfOperation) == -1){
+            nextOp = calculation.length();
+        }
+        calculation = calculation.substring(0, previousOp)+ calculateHelp2(calculation.substring(previousOp, nextOp)) + calculation.substring(nextOp);
+        return calculation;
+    }
+    private double calculateHelp2(String partition){
         double a;
         double b;
         if (partition.contains("+")){
@@ -182,16 +201,6 @@ String [] arrayOfOperations = {"+","-","x","/"};
             b = Double.parseDouble(partition.split("/")[1]);
             return a/b;
         }
-    }
-    private String calculateHelp(String operation, String calculation){
-        int locationOfOperation = calculation.indexOf(operation);
-        int previousOp = findSurroundingOp(calculation.substring(0,locationOfOperation),0)+1;
-        int nextOp = findSurroundingOp(calculation.substring(locationOfOperation+1),1)+1+locationOfOperation;
-        if((nextOp - 1-locationOfOperation) == -1){
-            nextOp = calculation.length();
-        }
-        calculation = calculation.substring(0, previousOp)+ calculateHelp2(calculation.substring(previousOp, nextOp)) + calculation.substring(nextOp);
-        return calculation;
     }
     private boolean containsOperations(String calculations){
         for (String a : arrayOfOperations){
