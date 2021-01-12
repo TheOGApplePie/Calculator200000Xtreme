@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 public class Main extends Application implements EventHandler<ActionEvent>{
 Button b0,b1,b2,b3,b4,b5,b6,b7,b8,b9,bSubtract,bPlus,bMultiply,bDivide,bEquals,bDot, bClear;
 TextArea textArea;
+String [] arrayOfOperations = {"+","-","x","/"};
     public static void main(String[] args) {
         launch(args);
     }
@@ -123,6 +124,105 @@ TextArea textArea;
     }
     }
     public void calculate(String calculation){
+        while (containsOperations(calculation)&& calculation.length()>2){
+            System.out.println(calculation);
+            while(calculation.contains("x")){
+                int locationOfx = calculation.indexOf("x");
+                int previousOp = findSurroundingOp(calculation.substring(0,locationOfx),0);
+                if(previousOp == -1){
+                    previousOp = 0;
+                }
+                int nextOp = findSurroundingOp(calculation.substring(locationOfx+1),1);
+                if(nextOp == -1){
+                    nextOp = calculation.length()-1;
+                }
+                calculation = calculation.substring(0, previousOp)+ calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+            }
+            while(calculation.contains("/")){
+                int locationOfDivide = calculation.indexOf("/");
+                int previousOp = findSurroundingOp(calculation.substring(0,locationOfDivide),0);
+                if(previousOp == -1){
+                    previousOp = 0;
+                }
+                int nextOp = findSurroundingOp(calculation.substring(locationOfDivide+1),1);
+                if(nextOp == -1){
+                    nextOp = calculation.length()-1;
+                }
+                calculation = calculation.substring(0, previousOp) + calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+            }
+            while (calculation.contains("+")){
+                int locationOfPlus = calculation.indexOf("+");
+                int previousOp = findSurroundingOp(calculation.substring(0,locationOfPlus),0);
+                if(previousOp == -1){
+                    previousOp = 0;
+                }
+                int nextOp = findSurroundingOp(calculation.substring(locationOfPlus+1),1);
+                if(nextOp == -1){
+                    nextOp = calculation.length()-1;
+                }
+                calculation = calculation.substring(0, previousOp) + calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+            }
+            while(calculation.contains("-")){
+                int locationOfMinus = calculation.indexOf("-");
+                int previousOp = findSurroundingOp(calculation.substring(0,locationOfMinus),0);
+                if(previousOp == -1){
+                    previousOp = 0;
+                }
+                int nextOp = findSurroundingOp(calculation.substring(locationOfMinus+1),1);
+                if(nextOp == -1){
+                    nextOp = calculation.length()-1;
+                }
+                calculation = calculation.substring(0, previousOp) + calculateHelp(calculation.substring(previousOp+1, nextOp)) + calculation.substring(nextOp);
+            }
+        }
+    textArea.setText(calculation);
+    }
 
+    private int findSurroundingOp(String substring, int i) {
+        if (i == 0){
+            for (int a = substring.length()-1; a>=0; a--){
+                if (containsOperations(substring.substring(a,a+1))){
+                    return a;
+                }
+            }
+        }
+        else{
+            for (int a = 0; a< substring.length(); a++){
+                if (containsOperations(substring.substring(a,a+1))){
+                    return a;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public double calculateHelp(String partition){
+        double a;
+        double b;
+        System.out.println(partition);
+        if (partition.contains("+")){
+            a = Double.parseDouble(partition.split("\\+")[0]);
+            b = Double.parseDouble(partition.split("\\+")[1]);
+            return a +b;
+        }else if(partition.contains("-")){
+            a = Double.parseDouble(partition.split("-")[0]);
+            b = Double.parseDouble(partition.split("-")[1]);
+            return a-b;
+        }else if(partition.contains("x")){
+            a = Double.parseDouble(partition.split("x")[0]);
+            b = Double.parseDouble(partition.split("x")[1]);
+            return a*b;
+        }else{
+            a = Double.parseDouble(partition.split("/")[0]);
+            b = Double.parseDouble(partition.split("/")[1]);
+            return a/b;}
+    }
+    private boolean containsOperations(String calculations){
+        for (String a : arrayOfOperations){
+            if (calculations.contains(a)){
+                return true;
+            }
+        }
+        return false;
     }
 }
