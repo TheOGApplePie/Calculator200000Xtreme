@@ -3,7 +3,6 @@ package com.theogapplepie;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -94,7 +93,6 @@ String [] arrayOfOperations = {"+","-","x","/"};
         stage.setTitle("Calculator 200,000xtreme");
         stage.setScene(scene);
         stage.show();
-
     }
     @Override
     public void handle(ActionEvent event) {
@@ -127,87 +125,95 @@ String [] arrayOfOperations = {"+","-","x","/"};
     }
     }
     public void calculate(String calculation){
-        boolean negativeCalculated = false;
-        while (containsOperations(calculation)&& !calculation.startsWith("+")&& !calculation.startsWith("x")&& !calculation.startsWith("/") && !negativeCalculated){
-            if(calculation.startsWith("-")){
-                calculation = "0" + calculation;
-            }
-            if(!calculation.contains("-")){
-                negativeCalculated = true;
-            }
-            while(calculation.contains("x")){
+//        if(calculation.startsWith("-")){
+//            calculation = "0" + calculation;
+//            calculation = calculateHelp("-", calculation);
+//        }
+        boolean bedmasComplete = false;
+        /*else*/if(calculation.startsWith("+")){
+            calculation = calculation.substring(1);
+        }else if(calculation.startsWith("/")|| calculation.startsWith("x")){
+            textArea.setText("Your calculation cannot start with \""+ calculation.charAt(0)+"\"");
+            bedmasComplete = true;
+        }
+
+        while (!bedmasComplete){
+            while (calculation.contains("x")){
             calculation = calculateHelp("x", calculation);
             }
-            while(calculation.contains("/")){
+            while (calculation.contains("/")){
                 calculation = calculateHelp("/", calculation);
             }
             while (calculation.contains("+")){
                 calculation = calculateHelp("+", calculation);
             }
-            while(calculation.contains("-") && !calculation.startsWith("-")){
+            if(calculation.length()>2 && calculation.substring(1).contains("-")){
+            while (calculation.contains("-") ){
                 calculation = calculateHelp("-", calculation);
-                if(calculation.startsWith("-")){
-                    negativeCalculated = true;
-                }
-            }
+            }}
+        bedmasComplete = true;
+            textArea.setText(calculation);
+
         }
-    textArea.setText(calculation);
     }
 
     private int findSurroundingOp(String substring, int i) {
         if (i == 0){
             for (int a = substring.length()-1; a>=0; a--){
-                if (containsOperations(substring.substring(a,a+1))){
+                if (containsOperations(substring.substring(a,a+1)))
                     return a;
-                }
             }
+            return 0;
         }
         else{
             for (int a = 0; a< substring.length(); a++){
-                if (containsOperations(substring.substring(a,a+1))){
+                if (containsOperations(substring.substring(a,a+1)))
                     return a;
-                }
             }
         }
-        return -1;
+        return substring.length();
     }
     private String calculateHelp(String operation, String calculation){
         int locationOfOperation = calculation.indexOf(operation);
-        int previousOp = findSurroundingOp(calculation.substring(0,locationOfOperation),0)+1;
+        int previousOp = findSurroundingOp(calculation.substring(0,locationOfOperation),0);
+        if (calculation.charAt(previousOp) != '-' && previousOp != 0){
+            previousOp++;
+        }
         int nextOp = findSurroundingOp(calculation.substring(locationOfOperation+1),1)+1+locationOfOperation;
         if((nextOp - 1-locationOfOperation) == -1){
             nextOp = calculation.length();
         }
+
         calculation = calculation.substring(0, previousOp)+ calculateHelp2(calculation.substring(previousOp, nextOp)) + calculation.substring(nextOp);
         return calculation;
     }
     private double calculateHelp2(String partition){
+        System.out.println(partition);
         double a;
         double b;
-        if (partition.contains("+")){
-            a = Double.parseDouble(partition.split("\\+")[0]);
-            b = Double.parseDouble(partition.split("\\+")[1]);
-            return a+b;
-        }else if(partition.contains("-")){
-            a = Double.parseDouble(partition.split("-")[0]);
-            b = Double.parseDouble(partition.split("-")[1]);
-            return a-b;
-        }else if(partition.contains("x")){
+        if (partition.contains("x")){
             a = Double.parseDouble(partition.split("x")[0]);
             b = Double.parseDouble(partition.split("x")[1]);
             return a*b;
-        }else {
+        }else if(partition.contains("/")){
             a = Double.parseDouble(partition.split("/")[0]);
             b = Double.parseDouble(partition.split("/")[1]);
             return a/b;
+        }else if(partition.contains("+")){
+            a = Double.parseDouble(partition.split("\\+")[0]);
+            b = Double.parseDouble(partition.split("\\+")[1]);
+            return a+b;
+        }else {
+            a = Double.parseDouble(partition.split("-")[0]);
+            b = Double.parseDouble(partition.split("-")[1]);
+            return a-b;
         }
     }
     private boolean containsOperations(String calculations){
         for (String a : arrayOfOperations){
             if (calculations.contains(a)){
-                return true;
-            }
+            return true;
         }
-        return false;
+        }return false;
     }
 }
