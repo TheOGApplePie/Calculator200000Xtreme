@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -15,6 +16,7 @@ import javafx.stage.Stage;
 public class Main extends Application implements EventHandler<ActionEvent>{
 Button b0,b1,b2,b3,b4,b5,b6,b7,b8,b9,bSubtract,bPlus,bMultiply,bDivide,bEquals,bDot, bClear;
 TextArea textArea;
+Label equationLabel;
 String [] arrayOfOperations = {"+","-","x","/"};
     public static void main(String[] args) {
         launch(args);
@@ -159,13 +161,14 @@ String [] arrayOfOperations = {"+","-","x","/"};
 
     switch (button.getText()) {
         case "C":
-            textArea.setText("");
+            textArea.setText("0");
             break;
         case ".":
             if (textArea.getText().isEmpty()){
                 textArea.appendText("0");
             }
-            if (!textArea.getText().endsWith(".")){
+            int index = findSurroundingOp(textArea.getText(),0);
+            if (!textArea.getText().substring(index).contains(".")){
                 textArea.appendText(button.getText());
             }
             break;
@@ -179,9 +182,16 @@ String [] arrayOfOperations = {"+","-","x","/"};
             if(textArea.getText().equals("0") && !button.getText().equals(".")){
                 textArea.setText(button.getText());
 
-    }else{
-            textArea.appendText(button.getText());}
-    }
+            }else{
+                if(containsOperations(textArea.getText().substring(textArea.getText().length()-1)) && containsOperations(button.getText()) && !button.getText().equals("-")){
+                    textArea.setText(textArea.getText().substring(0,textArea.getText().length()-1) + button.getText());
+                }else{
+                    if(button.getText().equals("-") && textArea.getText().endsWith("--")){
+                }else{
+                        textArea.appendText(button.getText());
+                    }}
+            }
+        }
     }
     /* Main function for calculating the calculation with some error checking.*/
     public void calculate(String calculation){
